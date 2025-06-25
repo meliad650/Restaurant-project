@@ -126,11 +126,16 @@ export default function OrdersM() {
   };
 
   const formatDeliveryPhone = (addressField) => {
-    const address = typeof addressField === 'string'
+    try {
+      const phone = typeof addressField === 'string'
         ? JSON.parse(addressField)
         : addressField;
-
-  }
+      return `${phone.phone}`
+    } catch (err) {
+      console.error('שגיאה בפירוק כתובת:', err);
+      return '---';
+    }
+  };
 
   const formatDeliveryAddress = (addressField) => {
     try {
@@ -138,7 +143,7 @@ export default function OrdersM() {
         ? JSON.parse(addressField)
         : addressField;
 
-      if (!address ) {
+      if (!address) {
         return '---';
       }
 
@@ -204,11 +209,13 @@ export default function OrdersM() {
           }}>
             <h3>הזמנה מספר #{order.id}</h3>
             <p><strong>תאריך:</strong> {formatDate(order.created_at)}</p>
-            <p><strong>סניף:</strong> {getBranchName(order.branch_id)}</p>
             <p><strong>סטטוס:</strong> {order.status}</p>
             <p><strong>סוג משלוח:</strong> {order.delivery_method === 'delivery' ? 'שליח עד הבית' : 'איסוף עצמי'}</p>
             {order.delivery_method === 'delivery' && (
               <p><strong>כתובת למשלוח:</strong> {formatDeliveryAddress(order.address)}</p>
+            )}
+            {order.delivery_method === 'pickup' && (
+              <p><strong>סניף:</strong> {getBranchName(order.branch_id)}</p>
             )}
             <p><strong>טלפון:</strong> {formatDeliveryPhone(order.address)}</p>
             <p><strong>הערות ובקשות:</strong> {order.notes}</p>

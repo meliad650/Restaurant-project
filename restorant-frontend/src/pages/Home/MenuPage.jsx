@@ -1,35 +1,5 @@
-// import React, { useEffect, useState } from 'react';
 
-// export default function MenuPage() {
-//   const [menu, setMenu] = useState([]);
-
-//   useEffect(() => {
-//     fetch('http://localhost:3001/api/menu')
-//       .then(res => res.json())
-//       .then(data => setMenu(data))
-//       .catch(err => console.error('שגיאה:', err));
-//   }, []);
-
-//   return (
-//     <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
-//       {menu.map(item => (
-//         <div key={item.id} style={{
-//           border: '1px solid #ddd',
-//           borderRadius: '8px',
-//           padding: '1rem',
-//           backgroundColor: '#fff'
-//         }}>
-//           <h3>{item.name}</h3>
-//           <p>{item.description}</p>
-//           <p><strong>₪ {Number(item.price).toFixed(2)}</strong></p>
-//           {item.image_url && <img src={item.image_url} alt={item.name} style={{ width: '100%', borderRadius: '6px' }} />}
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
 import React, { useEffect, useState } from 'react';
-// import { data } from 'react-router-dom';
 
 export default function MenuPage() {
   const [menu, setMenu] = useState([]);
@@ -63,7 +33,6 @@ const token = localStorage.getItem('token');
 
 
   const handleAddToCart = async (itemId) => {
-    console.log(userId)
     const quantity = quantities[itemId] || 1;
 
     if (!userId) return alert('התחבר כדי להוסיף לסל');

@@ -1,5 +1,3 @@
-
-// קובץ: src/pages/Home/HomePage.jsx
 import React from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import '../AuthPage.css';

@@ -8,6 +8,7 @@ import {
   updateCartItem
 } from '../../api/CartAPI';
 
+
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
@@ -109,10 +110,7 @@ export default function Cart() {
 
 
   const handleCreateOrder = async () => {
-    console.log('📌 בדיקת userId:', userId);
-    console.log('📌 סניף נבחר:', selectedBranch);
-    console.log('📌 פריטים בסל:', cartItems);
-
+ ס
     if (!userId || !selectedBranch || cartItems.length === 0) {
       alert('יש לוודא שכל השדות מולאו והסל אינו ריק');
       return;
@@ -127,7 +125,6 @@ export default function Cart() {
       phone,
     };
 
-    console.log('📦 כתובת שנאספה מהשדות:', address);
 
     const orderData = {
       user_id: userId,
@@ -135,7 +132,7 @@ export default function Cart() {
       delivery_method: deliveryMethod,
       status: 'התקבלה במערכת',
       notes,
-      selected_sauces: selectedSauces, // בלי stringify
+      selected_sauces: selectedSauces, 
       address: {
         city,
         street,
@@ -150,7 +147,6 @@ export default function Cart() {
     };
 
 
-    console.log('📤 נתונים שנשלחים לשרת:', orderData);
 
     try {
       const res = await fetch('http://localhost:3001/api/orders', {
@@ -163,15 +159,13 @@ export default function Cart() {
       });
 
       const responseText = await res.text();
-      console.log('📨 תגובת השרת הגולמית:', responseText);
 
       if (!res.ok) {
-        console.error('❌ שגיאת שרת:', res.status);
+        console.error(' שגיאת שרת:', res.status);
         throw new Error('שגיאה ביצירת הזמנה');
       }
 
       const createdOrder = JSON.parse(responseText);
-      console.log('✅ הזמנה שנשמרה:', createdOrder);
 
 setCartItems([]);
 setTotal(0);
@@ -187,7 +181,7 @@ setEntrance('');
 setPhone('');
 
     } catch (err) {
-      console.error('❌ שגיאה בהזמנה:', err);
+      console.error(' שגיאה בהזמנה:', err);
       alert('אירעה שגיאה בעת שליחת ההזמנה');
     }
   };

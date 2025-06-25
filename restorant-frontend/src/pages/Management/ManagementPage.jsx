@@ -55,7 +55,6 @@ export default function ManagementPage() {
     );
   }
 
-  // פילטר לפי תפקיד
   const visibleTabs =
     userRole === 'manager'
       ? allTabs

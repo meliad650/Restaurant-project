@@ -36,13 +36,11 @@ export default function AuthPage() {
         body: JSON.stringify(formData)
       });
 
-      // בדיקת קוד תשובה לפני json()
       const contentType = res.headers.get('Content-Type') || '';
       const isJson = contentType.includes('application/json');
       const data = isJson ? await res.json() : {};
 
       if (!res.ok) {
-        // מראה הודעת שגיאה מהשרת
         setMessage(data.message || 'שגיאה בעת השליחה');
         return;
       }
@@ -68,7 +66,6 @@ export default function AuthPage() {
           console.error('שגיאה בפענוח הטוקן:', err);
         }
 
-        // ניתוב לפי תפקיד
         if (data.role === 'waiter' || data.role === 'manager') {
           navigate('/ManagementPage');
         } else {
@@ -76,7 +73,7 @@ export default function AuthPage() {
         }
       } else {
         setMessage(data.message || 'ההרשמה הצליחה');
-        setIsRegistering(false); // מחזיר למסך התחברות אחרי רישום מוצלח
+        setIsRegistering(false); 
       }
     } catch (err) {
       console.error('שגיאה ב־fetch:', err);

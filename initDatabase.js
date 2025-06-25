@@ -113,7 +113,7 @@ id INT AUTO_INCREMENT PRIMARY KEY,
           'INSERT INTO menu_items (name, description, price, image_url,status) VALUES (?, ?, ?, ?,?)',
           [item.name, item.description, item.price, item.image_url,item.status]
         );
-        console.log(`✅ נוסף לתפריט: ${item.name}`);
+        console.log(` נוסף לתפריט: ${item.name}`);
       }
     }
 
@@ -121,7 +121,7 @@ id INT AUTO_INCREMENT PRIMARY KEY,
       const [exists] = await connection.execute('SELECT * FROM sauces WHERE id = ?', [item.id]);
       if (exists.length === 0) {
         await connection.execute('INSERT INTO sauces (id, name) VALUES (?, ?)', [item.id, item.name]);
-        console.log(`✅ רוטב נוסף: ${item.name}`);
+        console.log(` רוטב נוסף: ${item.name}`);
       }
     }
 
@@ -132,7 +132,7 @@ id INT AUTO_INCREMENT PRIMARY KEY,
           'INSERT INTO branches (id, city, street, building_number, phone,status) VALUES (?,?, ?, ?, ?, ?)',
           [branch.id, branch.city, branch.street, branch.building_number, branch.phone,branch.status]
         );
-        console.log(`✅ סניף ${branch.city} נוסף`);
+        console.log(` סניף ${branch.city} נוסף`);
       }
     }
 
@@ -143,9 +143,9 @@ id INT AUTO_INCREMENT PRIMARY KEY,
       'INSERT INTO users (teudat_zehut, email, first_name, address, role, password) VALUES (?, ?, ?, ?, ?, ?)',
       [user.teudat_zehut, user.email, user.first_name, user.address, user.role, user.password]
     );
-    console.log(`✅ משתמש ${user.first_name} נוסף`);
+    console.log(` משתמש ${user.first_name} נוסף`);
   } else {
-    console.log(`ℹ️ המשתמש ${user.first_name} כבר קיים`);
+    console.log(` המשתמש ${user.first_name} כבר קיים`);
   }
 }
 
@@ -161,14 +161,14 @@ id INT AUTO_INCREMENT PRIMARY KEY,
           'INSERT INTO order_items (id, order_id, menu_item_id, quantity, price_at_time) VALUES (?, ?, ?, ?, ?)',
           [item.id, item.order_id, item.menu_item_id, item.quantity, item.price_at_time]
         );
-        console.log(`✅ פריט להזמנה ${item.order_id} נוסף`);
+        console.log(` פריט להזמנה ${item.order_id} נוסף`);
       }
     }
 
-    console.log("📦 בסיס הנתונים נוצר והוזן בהצלחה.");
+    console.log(" בסיס הנתונים נוצר והוזן בהצלחה.");
     await connection.end();
   } catch (err) {
-    console.error("❌ שגיאה במהלך יצירת מסד הנתונים:", err);
+    console.error("שגיאה במהלך יצירת מסד הנתונים:", err);
   }
 })();
 

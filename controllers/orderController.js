@@ -19,7 +19,7 @@ exports.createOrder = async (req, res) => {
 
     res.status(201).json({
       message: 'הזמנה נוצרה',
-      id: result.insertId // חשוב שיהיה בדיוק 'id' כי זה מה שהקליינט מצפה לקבל
+      id: result.insertId 
     });
   } catch (err) {
     console.error('❌ שגיאה בשרת בעת יצירת הזמנה:', err);
