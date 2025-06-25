@@ -1,57 +1,90 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+
 const db = require('../db');
 
-const WAITER_SECRET = "MAN1223";
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const {
+  insertUser,
+  insertPassword,
+  getUserByEmail,
+  getPasswordByUserId
+} = require('../models/authModels');
+
+const WAITER_SECRET = "WAIT1223";
+const MANAGER_SECRET = "MAN1212";
 
 exports.register = async (req, res) => {
-  const { teudat_zehut, email, first_name, address, password, waiter_secret } = req.body;
+  const { teudat_zehut, email, first_name, address, password, secret } = req.body;
+console.log("SECRET:", secret);
 
   if (!teudat_zehut || !email || !first_name || !address || !password) {
     return res.status(400).json({ message: "נא למלא את כל השדות החובה" });
   }
 
-  const role = waiter_secret === WAITER_SECRET ? 'waiter' : 'customer';
+  let role = "customer";
+if (secret && secret.trim() !== '') {
+  if (secret === WAITER_SECRET) role = "waiter";
+  else if (secret === MANAGER_SECRET) role = "manager";
+  else return res.status(400).json({ message: 'סיסמת ניהול שגויה' });
+}
 
-  try {
-    const [result] = await db.execute(
-      `INSERT INTO users (teudat_zehut, email, first_name, address, role)
-       VALUES (?, ?, ?, ?, ?)`,
-      [teudat_zehut, email, first_name, address, role]
-    );
-
-    const userId = result.insertId;
-    const hash = await bcrypt.hash(password, 10);
-
-    await db.execute(
-      `INSERT INTO passwords (user_id, password_hash)
-       VALUES (?, ?)`,
-      [userId, hash]
-    );
-
+console.log('ROLE BEING SAVED:', role);
+const [existing] = await db.execute(
+  'SELECT id FROM users WHERE teudat_zehut = ? OR email = ?',
+  [teudat_zehut, email]
+);
+if (existing.length > 0) {
+  return res.status(400).json({ message: 'משתמש עם המייל או תעודת הזהות כבר קיים' });
+}
+  try {   
+    const userId = await insertUser(teudat_zehut, email, first_name, address, role,password);
     res.status(201).json({ message: "נרשמת בהצלחה", role });
   } catch (err) {
     console.error(err);
-    res.status(400).json({ message: "הרשמה נכשלה. ייתכן שהאימייל או תעודת הזהות כבר רשומים." });
+    res.status(400).json({ message: "ההרשמה נכשלה!" });
   }
 };
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
+  console.log('📩 התחברות עם:', { email, password });
+
   try {
+    // שליפת המשתמש לפי אימייל
     const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+    console.log('🔍 משתמשים שנמצאו:', users);
+
     const user = users[0];
-    if (!user) return res.status(401).json({ message: 'משתמש לא נמצא' });
+    if (!user) {
+      console.warn('⚠️ משתמש לא נמצא:', email);
+      return res.status(401).json({ message: 'משתמש לא נמצא' });
+    }
 
-    const [passRows] = await db.execute('SELECT * FROM passwords WHERE user_id = ?', [user.id]);
-    const passwordMatch = await bcrypt.compare(password, passRows[0]?.password_hash);
-    if (!passwordMatch) return res.status(401).json({ message: 'סיסמה שגויה' });
+    console.log('👤 משתמש:', {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      password: user.password, // רק לזיהוי, אל תשאירי בהפקה!
+    });
 
+    // בדיקת סיסמה
+    const passwordMatch = password === user.password;
+    console.log('🧪 בדיקת סיסמה:', passwordMatch);
+
+    if (!passwordMatch) {
+      console.warn('❌ סיסמה לא תואמת עבור המשתמש:', user.id);
+      return res.status(401).json({ message: 'סיסמה שגויה' });
+    }
+
+    // יצירת טוקן
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
-res.json({ token, email: user.email, role: user.role });
+    console.log('🔑 טוקן שנוצר:', token);
+
+    res.json({ token, email: user.email, role: user.role });
+    console.log('✅ התחברות הצליחה עבור:', user.email);
   } catch (err) {
-    console.error('שגיאה בהתחברות:', err);
+    console.error('❌ שגיאה בשרת בעת התחברות:', err);
     res.status(500).json({ message: 'שגיאה בשרת' });
   }
 };

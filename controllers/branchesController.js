@@ -11,9 +11,9 @@ exports.getAllBranches = async (req, res) => {
 };
 
 exports.addBranch = async (req, res) => {
-  const { id, city, street, building_number, phone } = req.body;
+  const { city, street, building_number, phone } = req.body;
   try {
-    await Branch.create({ id, city, street, building_number, phone });
+    await Branch.create({ city, street, building_number, phone });
     res.status(201).json({ message: 'סניף נוסף בהצלחה' });
   } catch (err) {
     console.error(err);

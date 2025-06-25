@@ -1,47 +1,37 @@
-// קובץ: src/pages/HomePage.jsx
-import React, { useState } from 'react';
-import MenuPage from '../Home/MenuPage';
-import Branches from '../Home/Branches';
-import Cart from '../Home/Cart';
-import OrderHistory from '../Home/OrderHistory';
+
+// קובץ: src/pages/Home/HomePage.jsx
+import React from 'react';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import '../AuthPage.css';
 
 const HomePage = () => {
-  const [activeTab, setActiveTab] = useState('menu');
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'menu':
-        return <MenuPage />;
-      case 'branches':
-        return <Branches />;
-      case 'cart':
-        return <Cart />;
-      case 'history':
-        return <OrderHistory />;
-      default:
-        return <MenuPage />;
-    }
-  };
+  const tabs = [
+    { key: 'menu', label: 'תפריט' },
+    { key: 'branches', label: 'סניפים' },
+    { key: 'cart', label: 'סל הקניות' },
+    { key: 'history', label: 'היסטורית הזמנות' },
+  ];
+
+  const activeTab = location.pathname.split('/')[2] || 'menu';
 
   return (
     <div>
       <nav className="nav-tabs">
-        {['menu', 'branches', 'cart', 'history'].map(tab => (
+        {tabs.map(tab => (
           <button
-            key={tab}
-            className="tab-button"
-            onClick={() => setActiveTab(tab)}
+            key={tab.key}
+            className={`tab-button ${activeTab === tab.key ? 'active' : ''}`}
+            onClick={() => navigate(`/home/${tab.key}`)}
           >
-            {tab === 'menu' && 'תפריט'}
-            {tab === 'branches' && 'סניפים'}
-            {tab === 'cart' && 'סל הקניות'}
-            {tab === 'history' && 'היסטורית הזמנות'}
+            {tab.label}
           </button>
         ))}
       </nav>
       <div style={{ padding: '20px' }}>
-        {renderContent()}
+        <Outlet />
       </div>
     </div>
   );

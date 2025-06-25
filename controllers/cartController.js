@@ -13,6 +13,7 @@ exports.getCartByUser = async (req, res) => {
 
 exports.addToCart = async (req, res) => {
   const { user_id, menu_item_id, quantity } = req.body;
+console.log('📥 נתונים שהתקבלו מהקליינט:', req.body);
 
   try {
     const existing = await Cart.findCartItem(user_id, menu_item_id);

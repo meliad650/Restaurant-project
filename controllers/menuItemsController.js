@@ -23,38 +23,45 @@ exports.getMenuItemById = async (req, res) => {
 };
 
 exports.createMenuItem = async (req, res) => {
-  const { name, description, price } = req.body;
+  const { name, description, price, image_url } = req.body;
   try {
-    const result = await Menu.create({ name, description, price });
-    res.status(201).json({ id: result.insertId, name, description, price });
+    const result = await Menu.create({ name, description, price, image_url });
+    res.status(201).json({ id: result.insertId, name, description, price, image_url });
   } catch (err) {
-    res.status(500).json({ error: 'שגיאה ביצירת מוצר' });
+    res.status(500).json({ error: 'שגיאה בהוספת מוצר' });
   }
+
 };
 
-exports.updateMenuItem = async (req, res) => {
+exports.updateMenuItemPrice = async (req, res) => {
   const { id } = req.params;
-  const { name, description, price } = req.body;
+  const { price } = req.body;
+
   try {
-    const result = await Menu.update(id, { name, description, price });
+    const result = await Menu.updatePrice(id, price);
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'מוצר לא נמצא' });
     }
-    res.json({ id, name, description, price });
+res.json({ id, price });
   } catch (err) {
-    res.status(500).json({ error: 'שגיאה בעדכון המוצר' });
+    res.status(500).json({ error: 'שגיאה בעדכון הסטטוס של המוצר' });
   }
 };
 
+
 exports.deleteMenuItem = async (req, res) => {
   const { id } = req.params;
+  console.log('ID למחיקה:', id); // ✨ שורת בדיקה
   try {
     const result = await Menu.remove(id);
+    console.log('תוצאת מחיקה:', result); // ✨ בדיקה נוספת
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'מוצר לא נמצא' });
     }
     res.json({ message: 'המוצר נמחק בהצלחה' });
   } catch (err) {
+    console.error('שגיאה בשרת:', err); // ✨ שורת לוג חשובה
     res.status(500).json({ error: 'שגיאה במחיקת המוצר' });
   }
 };
+

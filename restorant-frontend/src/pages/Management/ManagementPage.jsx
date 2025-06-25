@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import OrdersM from './oredersM';
-import MenuM from './menuM';
-import BranchesM from './branchesM';
+import React, { useEffect, useState } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
 export default function ManagementPage() {
-  const [activeTab, setActiveTab] = useState('orders');
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const navigate = useNavigate();
+  const location = useLocation();
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -38,21 +37,17 @@ export default function ManagementPage() {
     fetchUserRole();
   }, [token]);
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'orders':
-        return <OrdersM />;
-      case 'menu':
-        return <MenuM />;
-      case 'branches':
-        return <BranchesM />;
-      default:
-        return null;
-    }
-  };
+  const allTabs = [
+    { key: 'orders', label: 'ניהול הזמנות' },
+    { key: 'menu', label: 'ניהול תפריט' },
+    { key: 'branches', label: 'ניהול סניפים' },
+  ];
 
+  const activeTab = location.pathname.split('/')[2] || 'orders';
 
-  if (userRole !== 'waiter') {
+  if (loading) return null;
+
+  if (userRole !== 'manager' && userRole !== 'waiter') {
     return (
       <div style={{ padding: '20px', color: 'red' }}>
         <h2>אין לך הרשאה לצפות בעמוד זה</h2>
@@ -60,17 +55,32 @@ export default function ManagementPage() {
     );
   }
 
+  // פילטר לפי תפקיד
+  const visibleTabs =
+    userRole === 'manager'
+      ? allTabs
+      : allTabs.filter(tab => tab.key === 'orders');
+
   return (
     <div style={{ padding: '20px' }}>
-      <h2>ברוכים הבאים לממשק הניהול</h2>
+      <h2>ברוך הבא</h2>
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <button onClick={() => setActiveTab('orders')}>ניהול הזמנות</button>
-        <button onClick={() => setActiveTab('menu')}>ניהול תפריט</button>
-        <button onClick={() => setActiveTab('branches')}>ניהול סניפים</button>
+        {visibleTabs.map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => navigate(`/ManagementPage/${tab.key}`)}
+            style={{
+              fontWeight: activeTab === tab.key ? 'bold' : 'normal',
+              backgroundColor: activeTab === tab.key ? '#eee' : 'white',
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }}>
-        {renderContent()}
+        <Outlet />
       </div>
     </div>
   );

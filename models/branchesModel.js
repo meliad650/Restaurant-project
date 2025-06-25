@@ -1,18 +1,24 @@
 const db = require('../db');
 
 exports.findAll = async () => {
-  const [rows] = await db.execute('SELECT * FROM branches');
+  const [rows] = await db.execute(    "SELECT * FROM branches WHERE status = 'פעיל'"
+);
   return rows;
 };
 
-exports.create = async ({ id, city, street, building_number, phone }) => {
+exports.create = async ({  city, street, building_number, phone }) => {
+  console.log('City:', city, 'Street:', street, 'Number:', building_number, 'Phone:', phone);
   await db.execute(
-    `INSERT INTO branches (id, city, street, building_number, phone)
-     VALUES (?, ?, ?, ?, ?)`,
-    [id, city, street, building_number, phone]
+    `INSERT INTO branches ( city, street, building_number, phone)
+     VALUES ( ?, ?, ?, ?)`,
+    [ city, street, building_number, phone]
   );
 };
 
 exports.remove = async (id) => {
-  await db.execute('DELETE FROM branches WHERE id = ?', [id]);
+  const [result] = await db.query(
+    "UPDATE branches SET status = 'לא קיים' WHERE id = ?",
+    [id]
+  );
+  return result;
 };

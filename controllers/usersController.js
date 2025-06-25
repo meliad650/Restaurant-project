@@ -24,3 +24,14 @@ exports.getCurrentUser = async (req, res) => {
     res.status(500).json({ message: 'שגיאת שרת' });
   }
 };
+
+exports.deleteCartItem = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await Users.deleteUser(id);
+    res.json({ message: 'המשתמש נמחק' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'שגיאה במחיקת משתמש' });
+  }
+};

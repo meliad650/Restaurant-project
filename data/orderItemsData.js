@@ -30,14 +30,14 @@ module.exports=[
   {
     "id": 5,
     "order_id": 2,
-    "menu_item_id": 24,
+    "menu_item_id": 15,
     "quantity": 2,
     "price_at_time": 38.0
   },
   {
     "id": 6,
     "order_id": 2,
-    "menu_item_id": 21,
+    "menu_item_id": 19,
     "quantity": 1,
     "price_at_time": 39.0
   },
@@ -51,14 +51,14 @@ module.exports=[
   {
     "id": 8,
     "order_id": 3,
-    "menu_item_id": 20,
+    "menu_item_id": 10,
     "quantity": 3,
     "price_at_time": 33.0
   },
   {
     "id": 9,
     "order_id": 3,
-    "menu_item_id": 23,
+    "menu_item_id": 13,
     "quantity": 3,
     "price_at_time": 35.0
   },
@@ -107,7 +107,7 @@ module.exports=[
   {
     "id": 16,
     "order_id": 4,
-    "menu_item_id": 24,
+    "menu_item_id": 14,
     "quantity": 2,
     "price_at_time": 38.0
   },

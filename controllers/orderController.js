@@ -1,12 +1,28 @@
 const Order = require('../models/orderModel');
 
 exports.createOrder = async (req, res) => {
-  const { user_id, email, total_price, branch_id, delivery_method, status, notes } = req.body;
+  const {
+    user_id,
+    email,
+    total_price,
+    branch_id,
+    delivery_method,
+    status,
+    notes,
+    selected_sauces,
+    address
+  } = req.body;
+
   try {
-    const result = await Order.create(user_id, email, total_price, branch_id, delivery_method, status, notes);
-    res.status(201).json({ message: 'הזמנה נוצרה', order_id: result.insertId });
+    const [result] = await Order.create(
+      user_id, email, total_price, branch_id, delivery_method, status, notes, selected_sauces, address);
+
+    res.status(201).json({
+      message: 'הזמנה נוצרה',
+      id: result.insertId // חשוב שיהיה בדיוק 'id' כי זה מה שהקליינט מצפה לקבל
+    });
   } catch (err) {
-    console.error(err);
+    console.error('❌ שגיאה בשרת בעת יצירת הזמנה:', err);
     res.status(500).json({ message: 'שגיאה ביצירת הזמנה' });
   }
 };
@@ -59,6 +75,17 @@ exports.deleteOrder = async (req, res) => {
   try {
     await Order.delete(id);
     res.json({ message: 'הזמנה נמחקה' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'שגיאה במחיקת הזמנה' });
+  }
+};
+
+exports.deleteAllOrders = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await Order.deleteAll(id);
+    res.json({ message: 'כל ההזמנות מנחקו' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'שגיאה במחיקת הזמנה' });

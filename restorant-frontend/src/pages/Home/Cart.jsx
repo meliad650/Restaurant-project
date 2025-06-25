@@ -17,22 +17,30 @@ export default function Cart() {
   const [selectedBranch, setSelectedBranch] = useState('');
   const [deliveryMethod, setDeliveryMethod] = useState('pickup');
   const [notes, setNotes] = useState('');
-const [userId, setUserID] = useState(null);
+  const [userId, setUserID] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
+  const [city, setCity] = useState('');
+  const [street, setStreet] = useState('');
+  const [building, setBuilding] = useState('');
+  const [floor, setFloor] = useState('');
+  const [entrance, setEntrance] = useState('');
+  const [phone, setPhone] = useState('');
 
 
-const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
-    fetchUserRole();
+    fetchUserID();
   }, []);
 
-  const fetchUserRole = async () => {
+  const fetchUserID = async () => {
     try {
       const res = await fetch('http://localhost:3001/api/users/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
       setUserID(data.id);
+      setUserEmail(data.email);
     } catch (err) {
       console.error('iD של המשתמש תפקיד המשתמש:', err);
     }
@@ -86,41 +94,109 @@ const token = localStorage.getItem('token');
     }
   };
 
-  const handleSauceToggle = (sauceId) => {
+  const handleSauceToggle = (sauceName) => {
     setSelectedSauces(prev => {
-      if (prev.includes(sauceId)) {
-        return prev.filter(id => id !== sauceId);
-      } else if (prev.length < 3) {
-        return [...prev, sauceId];
+      if (prev.includes(sauceName)) {
+        return prev.filter(name => name !== sauceName);
+      } else if (prev.length < 4) {
+        return [...prev, sauceName];
       } else {
-        alert('ניתן לבחור עד 3 רטבים בלבד');
+        alert('ניתן לבחור עד 4 רטבים בלבד');
         return prev;
       }
     });
   };
 
+
+  const handleCreateOrder = async () => {
+    console.log('📌 בדיקת userId:', userId);
+    console.log('📌 סניף נבחר:', selectedBranch);
+    console.log('📌 פריטים בסל:', cartItems);
+
+    if (!userId || !selectedBranch || cartItems.length === 0) {
+      alert('יש לוודא שכל השדות מולאו והסל אינו ריק');
+      return;
+    }
+
+    const address = {
+      city,
+      street,
+      building,
+      floor,
+      entrance,
+      phone,
+    };
+
+    console.log('📦 כתובת שנאספה מהשדות:', address);
+
+    const orderData = {
+      user_id: userId,
+      branch_id: selectedBranch,
+      delivery_method: deliveryMethod,
+      status: 'התקבלה במערכת',
+      notes,
+      selected_sauces: selectedSauces, // בלי stringify
+      address: {
+        city,
+        street,
+        building,
+        floor,
+        entrance,
+        phone
+      },
+      total_price: total.toFixed(2),
+      created_at: new Date().toISOString(),
+      email: userEmail
+    };
+
+
+    console.log('📤 נתונים שנשלחים לשרת:', orderData);
+
+    try {
+      const res = await fetch('http://localhost:3001/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const responseText = await res.text();
+      console.log('📨 תגובת השרת הגולמית:', responseText);
+
+      if (!res.ok) {
+        console.error('❌ שגיאת שרת:', res.status);
+        throw new Error('שגיאה ביצירת הזמנה');
+      }
+
+      const createdOrder = JSON.parse(responseText);
+      console.log('✅ הזמנה שנשמרה:', createdOrder);
+
+setCartItems([]);
+setTotal(0);
+setSelectedBranch('');
+setDeliveryMethod('pickup');
+setNotes('');
+setSelectedSauces([]);
+setCity('');
+setStreet('');
+setBuilding('');
+setFloor('');
+setEntrance('');
+setPhone('');
+
+    } catch (err) {
+      console.error('❌ שגיאה בהזמנה:', err);
+      alert('אירעה שגיאה בעת שליחת ההזמנה');
+    }
+  };
+
+
+
   return (
     <div className="cart-page" style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', overflowX: 'hidden' }}>
       <div className="cart-container">
-        <div className="payment-section">
-          <h2>פרטי אשראי:</h2>
-          <input type="text" placeholder="מספר כרטיס" />
-          <div className="credit-details">
-            <input type="text" placeholder="תוקף כרטיס" />
-            <input type="text" placeholder="CVV" />
-          </div>
-
-          <h3>כתובת למשלוח</h3>
-          <input type="text" placeholder="עיר" />
-          <input type="text" placeholder="רחוב" />
-          <input type="text" placeholder="מספר בניין" />
-          <input type="text" placeholder="קומה" />
-          <input type="text" placeholder="כניסה" />
-          <input type="text" placeholder="טלפון זמין" />
-
-          <button className="confirm-button">אישור</button>
-        </div>
-
         <div className="middle-section">
           <h3>סך הכל לתשלום: ₪{total.toFixed(2)}</h3>
 
@@ -166,12 +242,13 @@ const token = localStorage.getItem('token');
                 <label key={sauce.id}>
                   <input
                     type="checkbox"
-                    checked={selectedSauces.includes(sauce.id)}
-                    onChange={() => handleSauceToggle(sauce.id)}
+                    checked={selectedSauces.includes(sauce.name)}
+                    onChange={() => handleSauceToggle(sauce.name)}
                   />
                   {sauce.name}
                 </label>
               ))}
+
             </div>
           </div>
 
@@ -185,8 +262,6 @@ const token = localStorage.getItem('token');
               style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px' }}
             />
           </div>
-
-          <button className="checkout-button">לתשלום</button>
         </div>
       </div>
 
@@ -217,6 +292,25 @@ const token = localStorage.getItem('token');
             <button className="cart-remove-button" onClick={() => handleDelete(item.id)}>הסר</button>
           </div>
         ))}
+        <div className="payment-section">
+          <h2>פרטי אשראי:</h2>
+          <input type="text" placeholder="מספר כרטיס" />
+          <div className="credit-details">
+            <input type="text" placeholder="תוקף כרטיס" />
+            <input type="text" placeholder="CVV" />
+          </div>
+
+          <h3>כתובת למשלוח</h3>
+          <input type="text" placeholder="עיר" value={city} onChange={(e) => setCity(e.target.value)} />
+          <input type="text" placeholder="רחוב" value={street} onChange={(e) => setStreet(e.target.value)} />
+          <input type="text" placeholder="מספר בניין" value={building} onChange={(e) => setBuilding(e.target.value)} />
+          <input type="text" placeholder="קומה" value={floor} onChange={(e) => setFloor(e.target.value)} />
+          <input type="text" placeholder="כניסה" value={entrance} onChange={(e) => setEntrance(e.target.value)} />
+          <input type="text" placeholder="טלפון זמין" value={phone} onChange={(e) => setPhone(e.target.value)} />
+
+
+          <button className="confirm-button" onClick={handleCreateOrder}>אישור</button>
+        </div>
       </div>
     </div>
   );

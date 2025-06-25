@@ -1,4 +1,3 @@
-// 📁 src/pages/AuthPage.jsx
 import React, { useState } from 'react';
 import './AuthPage.css';
 import { useNavigate } from 'react-router-dom';
@@ -11,8 +10,9 @@ export default function AuthPage() {
     first_name: '',
     teudat_zehut: '',
     address: '',
-    waiter_secret: ''
+    secret: ''
   });
+
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
@@ -36,36 +36,51 @@ export default function AuthPage() {
         body: JSON.stringify(formData)
       });
 
-      const data = await res.json();
+      // בדיקת קוד תשובה לפני json()
+      const contentType = res.headers.get('Content-Type') || '';
+      const isJson = contentType.includes('application/json');
+      const data = isJson ? await res.json() : {};
 
-   if (!isRegistering) {
-  // שמירת נתונים ב-localStorage
-  localStorage.setItem('userEmail', data.email);
-  localStorage.setItem('token', data.token);
-  localStorage.setItem('userRole', data.role); // שומר את התפקיד
+      if (!res.ok) {
+        // מראה הודעת שגיאה מהשרת
+        setMessage(data.message || 'שגיאה בעת השליחה');
+        return;
+      }
 
-  // שליפת userId מהטוקן
-  try {
-    const decoded = JSON.parse(atob(data.token.split('.')[1]));
-    localStorage.setItem('userId', decoded.id);
-  } catch (err) {
-    console.error('בעיה בפענוח הטוקן', err);
-  }
+      if (!isRegistering) {
+        if (!data.token || !data.email || !data.role) {
+          setMessage('חסרים נתונים בתשובת השרת');
+          return;
+        }
 
-  // ניתוב לפי תפקיד
-  if (data.role === 'waiter') {
-    navigate('/ManagementPage');
-  } else {
-    navigate('/home');
-  }
+        localStorage.setItem('userEmail', data.email);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userRole', data.role);
 
+        try {
+          const decoded = JSON.parse(atob(data.token.split('.')[1]));
+          if (decoded?.id) {
+            localStorage.setItem('userId', decoded.id);
+          } else {
+            console.warn('לא נמצאה מזהה משתמש בטוקן');
+          }
+        } catch (err) {
+          console.error('שגיאה בפענוח הטוקן:', err);
+        }
 
+        // ניתוב לפי תפקיד
+        if (data.role === 'waiter' || data.role === 'manager') {
+          navigate('/ManagementPage');
+        } else {
+          navigate('/home/menu');
+        }
       } else {
-        setMessage(data.message || 'משהו השתבש');
+        setMessage(data.message || 'ההרשמה הצליחה');
+        setIsRegistering(false); // מחזיר למסך התחברות אחרי רישום מוצלח
       }
     } catch (err) {
-      console.error(err);
-      setMessage('שגיאה בשרת');
+      console.error('שגיאה ב־fetch:', err);
+      setMessage('שגיאה בשרת או חיבור לא תקין');
     }
   };
 
@@ -85,8 +100,8 @@ export default function AuthPage() {
               <input type="text" name="teudat_zehut" required className="auth-input" onChange={handleChange} />
               <label>כתובת</label>
               <input type="text" name="address" required className="auth-input" onChange={handleChange} />
-              <label>סיסמת מלצר (לא חובה)</label>
-              <input type="text" name="waiter_secret" className="auth-input" onChange={handleChange} />
+              <label>סיסמת מלצר / מנהל (לא חובה)</label>
+              <input type="text" name="secret" className="auth-input" onChange={handleChange} />
             </>
           )}
 
