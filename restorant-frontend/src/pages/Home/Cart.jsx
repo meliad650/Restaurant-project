@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import './CartPage.css';
 import {
   fetchCart,
   fetchSauces,
@@ -7,7 +6,10 @@ import {
   deleteCartItem,
   updateCartItem
 } from '../../api/CartAPI';
-
+import {
+  Box, Grid, Card, CardContent, CardMedia, Typography, IconButton, Button, TextField, Select, MenuItem, FormControl, InputLabel, RadioGroup, FormControlLabel, Radio, Checkbox, FormGroup, Divider
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
@@ -189,123 +191,161 @@ setPhone('');
 
 
   return (
-    <div className="cart-page" style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', overflowX: 'hidden' }}>
-      <div className="cart-container">
-        <div className="middle-section">
-          <h3>סך הכל לתשלום: ₪{total.toFixed(2)}</h3>
-
-          <div className="branch-selection">
-            <h4>בחר סניף לאיסוף:</h4>
-            <select value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)}>
-              <option value="">-- בחר סניף --</option>
-              {branches.map(branch => (
-                <option key={branch.id} value={branch.id}>
-                  {branch.city}, {branch.street} {branch.building_number}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="delivery-method">
-            <label>
-              <input
-                type="radio"
-                name="delivery"
-                value="pickup"
-                checked={deliveryMethod === 'pickup'}
-                onChange={(e) => setDeliveryMethod(e.target.value)}
-              />
-              איסוף עצמי
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="delivery"
-                value="delivery"
-                checked={deliveryMethod === 'delivery'}
-                onChange={(e) => setDeliveryMethod(e.target.value)}
-              />
-              משלוח
-            </label>
-          </div>
-
-          <div className="sauce-selection">
-            <h4>בחר עד 3 רטבים:</h4>
-            <div className="sauce-list">
-              {sauces.map(sauce => (
-                <label key={sauce.id}>
-                  <input
-                    type="checkbox"
-                    checked={selectedSauces.includes(sauce.name)}
-                    onChange={() => handleSauceToggle(sauce.name)}
+    <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', py: 3 }}>
+      <Typography variant="h4" fontWeight={800} textAlign="center" mb={4}>
+        סל הקניות
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={7}>
+          <Card sx={{ p: 2, mb: 3, borderRadius: 4, boxShadow: 2 }}>
+            <Typography variant="h6" fontWeight={700} mb={2}>
+              פריטים בסל
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            {cartItems.length === 0 ? (
+              <Typography color="text.secondary">הסל ריק</Typography>
+            ) : (
+              cartItems.map(item => (
+                <Box key={item.id} sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 1, borderRadius: 2, bgcolor: '#fafafa' }}>
+                  <CardMedia
+                    component="img"
+                    image={item.image_url || 'https://via.placeholder.com/80'}
+                    alt={item.name}
+                    sx={{ width: 80, height: 80, borderRadius: 2, mr: 2 }}
                   />
-                  {sauce.name}
-                </label>
-              ))}
-
-            </div>
-          </div>
-
-          <div className="notes-box">
-            <h4>הערות ובקשות מיוחדות:</h4>
-            <textarea
+                  <Box sx={{ flex: 1 }}>
+                    <Typography fontWeight={700}>{item.name}</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography>כמות:</Typography>
+                      <TextField
+                        type="number"
+                        size="small"
+                        value={item.quantity}
+                        onChange={e => handleQuantityChange(item.id, Number(e.target.value))}
+                        inputProps={{ min: 1, style: { width: 60, textAlign: 'center' } }}
+                        sx={{ mx: 1 }}
+                      />
+                    </Box>
+                    <Typography variant="body2">מחיר ליחידה: ₪{item.price}</Typography>
+                  </Box>
+                  <IconButton color="error" onClick={() => handleDelete(item.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              ))
+            )}
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="h6" color="primary" textAlign="left">
+              סך הכל לתשלום: ₪{total.toFixed(2)}
+            </Typography>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={5}>
+          <Card sx={{ p: 3, borderRadius: 4, boxShadow: 2 }}>
+            <Typography variant="h6" fontWeight={700} mb={2}>
+              פרטי הזמנה
+            </Typography>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>בחר סניף</InputLabel>
+              <Select
+                value={selectedBranch}
+                label="בחר סניף"
+                onChange={e => setSelectedBranch(e.target.value)}
+              >
+                <MenuItem value="">-- בחר סניף --</MenuItem>
+                {branches.map(branch => (
+                  <MenuItem key={branch.id} value={branch.id}>
+                    {branch.city}, {branch.street} {branch.building_number}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl component="fieldset" sx={{ mb: 2 }}>
+              <RadioGroup
+                row
+                value={deliveryMethod}
+                onChange={e => setDeliveryMethod(e.target.value)}
+              >
+                <FormControlLabel value="pickup" control={<Radio />} label="איסוף עצמי" />
+                <FormControlLabel value="delivery" control={<Radio />} label="משלוח" />
+              </RadioGroup>
+            </FormControl>
+            <Box sx={{ mb: 2 }}>
+              <Typography fontWeight={700} mb={1}>בחר עד 4 רטבים:</Typography>
+              <FormGroup row>
+                {sauces.map(sauce => (
+                  <FormControlLabel
+                    key={sauce.id}
+                    control={
+                      <Checkbox
+                        checked={selectedSauces.includes(sauce.name)}
+                        onChange={() => handleSauceToggle(sauce.name)}
+                        disabled={
+                          !selectedSauces.includes(sauce.name) && selectedSauces.length >= 4
+                        }
+                      />
+                    }
+                    label={sauce.name}
+                  />
+                ))}
+              </FormGroup>
+            </Box>
+            <TextField
+              label="הערות ובקשות מיוחדות"
+              multiline
+              rows={3}
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="כתוב כאן כל בקשה מיוחדת להזמנה שלך..."
-              rows="4"
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px' }}
+              onChange={e => setNotes(e.target.value)}
+              fullWidth
+              sx={{ mb: 2 }}
             />
-          </div>
-        </div>
-      </div>
-
-      <div className="cart-items">
-        {cartItems.map(item => (
-          <div key={item.id} className="cart-item">
-            <div className="cart-item-info">
-              <img
-                src={item.image_url || 'https://via.placeholder.com/80'}
-                alt={item.name}
-                className="cart-item-img"
-              />
-              <div>
-                <h4>{item.name}</h4>
-                <p>
-                  כמות:
-                  <input
-                    type="number"
-                    min="1"
-                    value={item.quantity}
-                    onChange={(e) => handleQuantityChange(item.id, Number(e.target.value))}
-                    className="cart-item-input"
-                  />
-                </p>
-                <p>מחיר ליחידה: ₪{item.price}</p>
-              </div>
-            </div>
-            <button className="cart-remove-button" onClick={() => handleDelete(item.id)}>הסר</button>
-          </div>
-        ))}
-        <div className="payment-section">
-          <h2>פרטי אשראי:</h2>
-          <input type="text" placeholder="מספר כרטיס" />
-          <div className="credit-details">
-            <input type="text" placeholder="תוקף כרטיס" />
-            <input type="text" placeholder="CVV" />
-          </div>
-
-          <h3>כתובת למשלוח</h3>
-          <input type="text" placeholder="עיר" value={city} onChange={(e) => setCity(e.target.value)} />
-          <input type="text" placeholder="רחוב" value={street} onChange={(e) => setStreet(e.target.value)} />
-          <input type="text" placeholder="מספר בניין" value={building} onChange={(e) => setBuilding(e.target.value)} />
-          <input type="text" placeholder="קומה" value={floor} onChange={(e) => setFloor(e.target.value)} />
-          <input type="text" placeholder="כניסה" value={entrance} onChange={(e) => setEntrance(e.target.value)} />
-          <input type="text" placeholder="טלפון זמין" value={phone} onChange={(e) => setPhone(e.target.value)} />
-
-
-          <button className="confirm-button" onClick={handleCreateOrder}>אישור</button>
-        </div>
-      </div>
-    </div>
+            <Divider sx={{ my: 2 }} />
+            <Typography fontWeight={700} mb={1}>פרטי אשראי</Typography>
+            <Grid container spacing={1}>
+              <Grid item xs={12}>
+                <TextField fullWidth label="מספר כרטיס" variant="outlined" sx={{ mb: 1 }} />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField fullWidth label="תוקף כרטיס" variant="outlined" />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField fullWidth label="CVV" variant="outlined" />
+              </Grid>
+            </Grid>
+            <Divider sx={{ my: 2 }} />
+            <Typography fontWeight={700} mb={1}>כתובת למשלוח</Typography>
+            <Grid container spacing={1}>
+              <Grid item xs={12}>
+                <TextField fullWidth label="עיר" value={city} onChange={e => setCity(e.target.value)} sx={{ mb: 1 }} />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField fullWidth label="רחוב" value={street} onChange={e => setStreet(e.target.value)} sx={{ mb: 1 }} />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField fullWidth label="מספר בניין" value={building} onChange={e => setBuilding(e.target.value)} />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField fullWidth label="קומה" value={floor} onChange={e => setFloor(e.target.value)} />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField fullWidth label="כניסה" value={entrance} onChange={e => setEntrance(e.target.value)} />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField fullWidth label="טלפון זמין" value={phone} onChange={e => setPhone(e.target.value)} />
+              </Grid>
+            </Grid>
+            <Button
+              variant="contained"
+              color="success"
+              fullWidth
+              sx={{ mt: 3, borderRadius: 3, fontWeight: 700, fontSize: 18 }}
+              onClick={handleCreateOrder}
+            >
+              אישור
+            </Button>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }

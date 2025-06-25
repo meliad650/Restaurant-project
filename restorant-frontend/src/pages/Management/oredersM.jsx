@@ -1,5 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
+import { Box, Card, CardContent, Typography, TextField, Button, Grid, Divider, MenuItem, Select, InputLabel, FormControl, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import EditIcon from '@mui/icons-material/Edit';
 
 export default function OrdersM() {
   const [orders, setOrders] = useState([]);
@@ -163,106 +165,132 @@ export default function OrdersM() {
 
 
   return (
-    <div style={{ padding: '20px' }}>
-      <div style={{ marginBottom: '20px' }}>
-        <label><strong>סינון לפי סטטוס:</strong> </label>
-        <select
-          value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value)}
-          style={{ marginRight: '10px', padding: '6px' }}
-        >
-          <option value=''>הכל</option>
-          {statusOptions.map(status => (
-            <option key={status} value={status}>{status}</option>
-          ))}
-        </select>
-        <button onClick={() => setSelectedStatus('')}>איפוס סינון</button>
-      </div>
-      <div style={{ marginBottom: '20px' }}>
-        <label><strong>סינון לפי סניף:</strong> </label>
-        <select
-          value={selectedBranchId}
-          onChange={(e) => setSelectedBranchId(e.target.value)}
-          style={{ marginRight: '10px', padding: '6px' }}
-        >
-          <option value=''>כל הסניפים</option>
-          {branches.map(branch => (
-            <option key={branch.id} value={branch.id}>
-              {getBranchName(branch.id)}
-            </option>
-          ))}
-        </select>
-        <button onClick={() => setSelectedBranchId('')}>איפוס סינון</button>
-      </div>
-
-      <h2>ניהול הזמנות</h2>
-      {loading ? (
-        <p>טוען הזמנות...</p>
-      ) : (
-        filteredOrders.map((order) => (
-          <div key={order.id} style={{
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            padding: '16px',
-            backgroundColor: '#f9f9f9'
-          }}>
-            <h3>הזמנה מספר #{order.id}</h3>
-            <p><strong>תאריך:</strong> {formatDate(order.created_at)}</p>
-            <p><strong>סטטוס:</strong> {order.status}</p>
-            <p><strong>סוג משלוח:</strong> {order.delivery_method === 'delivery' ? 'שליח עד הבית' : 'איסוף עצמי'}</p>
-            {order.delivery_method === 'delivery' && (
-              <p><strong>כתובת למשלוח:</strong> {formatDeliveryAddress(order.address)}</p>
-            )}
-            {order.delivery_method === 'pickup' && (
-              <p><strong>סניף:</strong> {getBranchName(order.branch_id)}</p>
-            )}
-            <p><strong>טלפון:</strong> {formatDeliveryPhone(order.address)}</p>
-            <p><strong>הערות ובקשות:</strong> {order.notes}</p>
-            <h4>פריטים בהזמנה:</h4>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th style={{ border: '1px solid #ccc', padding: '8px' }}>מוצר</th>
-                  <th style={{ border: '1px solid #ccc', padding: '8px' }}>כמות</th>
-                  <th style={{ border: '1px solid #ccc', padding: '8px' }}>מחיר</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(orderItemsMap[order.id] || []).map(item => (
-                  <tr key={item.id}>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>{getMenuItemName(item.menu_item_id)}</td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>{item.quantity}</td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>₪{item.price_at_time}</td>
-                  </tr>
+    <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', p: 2 }}>
+      <Card sx={{ p: 3, mb: 4, borderRadius: 4, boxShadow: 3 }}>
+        <Typography variant="h5" fontWeight={700} mb={2}>סינון הזמנות</Typography>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={6} md={4}>
+            <FormControl fullWidth>
+              <InputLabel>סטטוס</InputLabel>
+              <Select
+                value={selectedStatus}
+                label="סטטוס"
+                onChange={e => setSelectedStatus(e.target.value)}
+                startAdornment={<FilterAltIcon />}
+              >
+                <MenuItem value=''>הכל</MenuItem>
+                {statusOptions.map(status => (
+                  <MenuItem key={status} value={status}>{status}</MenuItem>
                 ))}
-              </tbody>
-            </table>
-
-            {(userRole === 'waiter' || userRole === 'manager') && (
-              editStatusId === order.id ? (
-                <div style={{ marginTop: '10px' }}>
-                  <select
-                    onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
-                    defaultValue={order.status}
-                  >
-                    {statusOptions.map(status => (
-                      <option key={status} value={status}>{status}</option>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <FormControl fullWidth>
+              <InputLabel>סניף</InputLabel>
+              <Select
+                value={selectedBranchId}
+                label="סניף"
+                onChange={e => setSelectedBranchId(e.target.value)}
+                startAdornment={<FilterAltIcon />}
+              >
+                <MenuItem value=''>כל הסניפים</MenuItem>
+                {branches.map(branch => (
+                  <MenuItem key={branch.id} value={branch.id}>{getBranchName(branch.id)}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={12} md={4}>
+            <Button variant="outlined" color="primary" onClick={() => { setSelectedStatus(''); setSelectedBranchId(''); }}>איפוס סינון</Button>
+          </Grid>
+        </Grid>
+      </Card>
+      <Card sx={{ p: 3, borderRadius: 4, boxShadow: 3 }}>
+        <Typography variant="h5" fontWeight={700} mb={2}>ניהול הזמנות</Typography>
+        <Divider sx={{ mb: 2 }} />
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          filteredOrders.map((order) => (
+            <Card key={order.id} sx={{ mb: 3, p: 2, borderRadius: 3, boxShadow: 1 }}>
+              <Typography variant="h6" fontWeight={700} mb={1}>הזמנה מספר #{order.id}</Typography>
+              <Box sx={{ mb: 1 }}>
+                <Typography><b>תאריך:</b> {formatDate(order.created_at)}</Typography>
+              </Box>
+              <Box sx={{ mb: 1 }}>
+                <Typography><b>סטטוס:</b> {order.status}</Typography>
+              </Box>
+              <Box sx={{ mb: 1 }}>
+                <Typography><b>סוג משלוח:</b> {order.delivery_method === 'delivery' ? 'שליח עד הבית' : 'איסוף עצמי'}</Typography>
+              </Box>
+              <Box sx={{ mb: 1 }}>
+                <Typography><b>טלפון:</b> {formatDeliveryPhone(order.address)}</Typography>
+              </Box>
+              {order.delivery_method === 'delivery' && (
+                <Box sx={{ mb: 1 }}>
+                  <Typography><b>כתובת למשלוח:</b> {formatDeliveryAddress(order.address)}</Typography>
+                </Box>
+              )}
+              {order.delivery_method === 'pickup' && (
+                <Box sx={{ mb: 1 }}>
+                  <Typography><b>סניף:</b> {getBranchName(order.branch_id)}</Typography>
+                </Box>
+              )}
+              <Box sx={{ mb: 1 }}>
+                <Typography><b>הערות ובקשות:</b> {order.notes}</Typography>
+              </Box>
+              <Typography fontWeight={700} mt={2}>פריטים בהזמנה:</Typography>
+              <TableContainer component={Paper} sx={{ mt: 1, mb: 2 }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>מוצר</TableCell>
+                      <TableCell>כמות</TableCell>
+                      <TableCell>מחיר</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {(orderItemsMap[order.id] || []).map(item => (
+                      <TableRow key={item.id}>
+                        <TableCell>{getMenuItemName(item.menu_item_id)}</TableCell>
+                        <TableCell>{item.quantity}</TableCell>
+                        <TableCell>₪{item.price_at_time}</TableCell>
+                      </TableRow>
                     ))}
-                  </select>
-                </div>
-              ) : (
-                <button
-                  style={{ marginTop: '10px' }}
-                  onClick={() => setEditStatusId(order.id)}
-                >
-                  עדכן סטטוס
-                </button>
-              )
-            )}
-          </div>
-        ))
-      )}
-    </div>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              {(userRole === 'waiter' || userRole === 'manager') && (
+                editStatusId === order.id ? (
+                  <FormControl sx={{ mt: 1, minWidth: 180 }}>
+                    <Select
+                      value={order.status}
+                      onChange={e => handleStatusUpdate(order.id, e.target.value)}
+                    >
+                      {statusOptions.map(status => (
+                        <MenuItem key={status} value={status}>{status}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                ) : (
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    startIcon={<EditIcon />}
+                    sx={{ mt: 1, fontWeight: 700 }}
+                    onClick={() => setEditStatusId(order.id)}
+                  >
+                    עדכן סטטוס
+                  </Button>
+                )
+              )}
+            </Card>
+          ))
+        )}
+      </Card>
+    </Box>
   );
 }

@@ -1,10 +1,11 @@
-
 import React, { useEffect, useState } from 'react';
+import { Card, CardContent, CardMedia, Typography, Button, Grid, Box, TextField } from '@mui/material';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
 export default function MenuPage() {
   const [menu, setMenu] = useState([]);
   const [quantities, setQuantities] = useState({});
-const [userId, setUserID] = useState(null);
+  const [userId, setUserID] = useState(null);
 
   useEffect(() => {
     fetch('http://localhost:3001/api/menu')
@@ -13,7 +14,7 @@ const [userId, setUserID] = useState(null);
       .catch(err => console.error('שגיאה:', err));
   }, []);
 
-const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     fetchUserRole();
@@ -30,7 +31,6 @@ const token = localStorage.getItem('token');
       console.error('iD של המשתמש תפקיד המשתמש:', err);
     }
   };
-
 
   const handleAddToCart = async (itemId) => {
     const quantity = quantities[itemId] || 1;
@@ -58,38 +58,57 @@ const token = localStorage.getItem('token');
   };
 
   return (
-    <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
-      {menu.map(item => (
-        <div key={item.id} style={{
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-          padding: '1rem',
-          backgroundColor: '#fff'
-        }}>
-          <h3>{item.name}</h3>
-          <p>{item.description}</p>
-          <p><strong>₪ {Number(item.price).toFixed(2)}</strong></p>
-          {item.image_url && <img src={item.image_url} alt={item.name} style={{ width: '100%', borderRadius: '6px' }} />}
-
-          <div style={{ marginTop: '1rem' }}>
-            <label>כמות: </label>
-            <input
-              type="number"
-              min="1"
-              value={quantities[item.id] || 1}
-              onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-              style={{ width: '60px', marginLeft: '8px' }}
-            />
-          </div>
-
-          <button
-            style={{ marginTop: '10px', backgroundColor: '#22B362', color: '#fff', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}
-            onClick={() => handleAddToCart(item.id)}
-          >
-            הוסף לסל
-          </button>
-        </div>
-      ))}
-    </div>
+    <Box sx={{ width: '100%' }}>
+      <Grid container spacing={3} justifyContent="center">
+        {menu.map(item => (
+          <Grid item xs={12} sm={6} md={3} lg={3} key={item.id} sx={{ display: 'flex' }}>
+            <Card sx={{ width: '100%', minWidth: 240, maxWidth: 320, height: 370, display: 'flex', flexDirection: 'column', boxShadow: 3, borderRadius: 4, mx: 'auto' }}>
+              {item.image_url && (
+                <CardMedia
+                  component="img"
+                  height="160"
+                  image={item.image_url}
+                  alt={item.name}
+                  sx={{ objectFit: 'cover', borderRadius: '16px 16px 0 0' }}
+                />
+              )}
+              <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', p: 2 }}>
+                <Box>
+                  <Typography gutterBottom variant="h6" component="div" fontWeight={700} textAlign="center">
+                    {item.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ minHeight: 40 }}>
+                    {item.description}
+                  </Typography>
+                  <Typography variant="h6" color="primary" textAlign="center" sx={{ mt: 1 }}>
+                    ₪ {Number(item.price).toFixed(2)}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
+                  <TextField
+                    type="number"
+                    size="small"
+                    label="כמות"
+                    inputProps={{ min: 1, style: { textAlign: 'center' } }}
+                    value={quantities[item.id] || 1}
+                    onChange={e => handleQuantityChange(item.id, e.target.value)}
+                    sx={{ width: 80, mx: 1 }}
+                  />
+                  <Button
+                    variant="contained"
+                    color="success"
+                    startIcon={<AddShoppingCartIcon />}
+                    sx={{ borderRadius: 3, fontWeight: 700, px: 3 }}
+                    onClick={() => handleAddToCart(item.id)}
+                  >
+                    הוסף לסל
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
   );
 }
