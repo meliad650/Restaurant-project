@@ -93,6 +93,18 @@ npm run dev
 
 ---
 
+## 🔐 **קובץ הגדרות סביבה (.env)**
+
+לפני הרצת הפרויקט יש ליצור קובץ בשם `.env` בתיקיית השורש של הפרויקט, על בסיס הקובץ לדוגמה `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+יש למלא בו את הפרטים הרלוונטיים כמו שם משתמש בסיס הנתונים, סיסמה ו־JWT Secret.
+
+---
+
 ## 📁 **מבנה הפרויקט**
 
 ```
