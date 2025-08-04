@@ -112,7 +112,7 @@ export default function Cart() {
 
 
   const handleCreateOrder = async () => {
- ס
+ 
     if (!userId || !selectedBranch || cartItems.length === 0) {
       alert('יש לוודא שכל השדות מולאו והסל אינו ריק');
       return;
@@ -168,6 +168,26 @@ export default function Cart() {
       }
 
       const createdOrder = JSON.parse(responseText);
+
+      for (const item of cartItems) {
+  try {
+    await fetch('http://localhost:3001/api/order-items', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        order_id: createdOrder.id,
+        menu_item_id: item.menu_item_id || item.id,
+        quantity: item.quantity,
+        price_at_time: item.price
+      })
+    });
+  } catch (err) {
+    console.error('שגיאה בשמירת פריט הזמנה:', err);
+  }
+}
 
 setCartItems([]);
 setTotal(0);
