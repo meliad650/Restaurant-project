@@ -1,6 +1,6 @@
 # 🌐 תפריט והזמנות newdely 🍟🌭🍗
 
-ברוכים הבאים לאתר שבניתי! האתר מציג מידע על החנות ניו-דלי (הזמנות אוכלת והצגת התפריט), עם עיצוב מודרני, רספונסיבי וקל לשימוש.
+ברוכים הבאים לאתר שבניתי! האתר מציג מידע על החנות ניו-דלי הכולל הצגת התפריט וההזמנות בצד הלקוח וניהול החנות וההזמנות בצד המנהל והמלצר, עם עיצוב מודרני, וקל לשימוש.
 
 צילומי מסך המאתר- https://drive.google.com/drive/folders/1sPaQOzypzglnA9pe0EbQs5rtjbdyryfC?usp=sharing
 ---
@@ -9,6 +9,9 @@
 - 🔹 טעינה מהירה
 - 🔹 ניווט קל ונוח
 - 🔹 הבטחת פרטיות ובטיחות לכניסת מנהל וכניסת לקוח
+- 🔹ממשק משתמש מודרני ונעים לעין עם Material UI
+- 🔹 ארכיטקטורה מופרדת (Frontend/Backend) – קוד נקי וקל לתחזוקה.
+- 🔹שימוש בבסיס נתונים רלציוני (MySQL) – גמישות בניהול מידע.
 
 ---
 
@@ -52,19 +55,20 @@ npm start
 ```bash
 git clone https://github.com/your-username/your-repo.git
 cd your-repo
-2. התקנת תלויות ל-Backend
+
+### 2. התקנת תלויות ל-Backend
 cd restaurant
 npm install
-3. הרצת ה-Backend
+### 3. הרצת ה-Backend
 nodemon server.js
-4. התקנת תלויות ל-Frontend
+### 4. התקנת תלויות ל-Frontend
 cd restorant-frontend
 npm install
-5. הרצת ה-Frontend
+### 5. הרצת ה-Frontend
 npm run dev
 
 
-📁 מבנה הפרויקט
+## 📁 מבנה הפרויקט
 restaurant/
 ├── .env
 ├── server.js
